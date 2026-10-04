@@ -448,3 +448,23 @@ To better understand how a REST API is built with Flask, go through the source c
 
 This is not a graded activity.
 
+## Assignment 1 - REST API Extension
+
+This project extends the Flask REST API by adding a Tasks resource and deploying the application to Azure App Service.
+
+### Features
+
+- Get all tasks
+- Get a task by ID
+- Create a new task
+- Update a task
+- Delete a task
+- Get tasks for a specific user
+- Error handling for invalid requests and user IDs
+
+### Video Demonstration
+
+The video demonstrates the REST API running on Azure App Service and tests the API endpoints using the REST Client in Visual Studio Code.
+
+YouTube Video: https://youtu.be/qAFdN0BzTXg
+
