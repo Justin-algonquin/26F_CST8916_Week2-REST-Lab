@@ -116,7 +116,11 @@ def get_task(task_id):
     # Route to create a new task (POST request)
 @app.route('/tasks', methods=['POST'])
 def create_task():
-    if not request.json or not 'title' in request.json:
+    if not request.json or 'title' not in request.json or 'user_id' not in request.json:
+        abort(400)
+
+    user_id = request.json['user_id']
+    if not any(user['id'] == user_id for user in users):
         abort(400)
 
     new_task = {
