@@ -20,7 +20,11 @@ users = [
     {"id": 1, "name": "Alice", "age": 25},
     {"id": 2, "name": "Bob", "age": 30},
 ]
-
+# In-memory "database" of tasks
+tasks = [
+    {"id": 1, "title": "Finish assignment", "completed": False, "user_id": 1},
+    {"id": 2, "title": "Study REST API", "completed": True, "user_id": 2}
+]
 # Define route to handle requests to the root URL ('/')
 @app.route('/')
 def index():
@@ -98,6 +102,59 @@ def delete_user(user_id):
     users = [user for user in users if user['id'] != user_id]
     return '', 204  # 204 is the HTTP status code for 'No Content', indicating the deletion was successful
 
+# Route to retrieve all tasks (GET request)
+@app.route('/tasks', methods=['GET'])
+def get_tasks():
+    return jsonify(tasks), 200
+    # Route to retrieve a single task by ID
+@app.route('/tasks/<int:task_id>', methods=['GET'])
+def get_task(task_id):
+    task = next((task for task in tasks if task['id'] == task_id), None)
+    if task is None:
+        abort(404)
+    return jsonify(task), 200
+    # Route to create a new task (POST request)
+@app.route('/tasks', methods=['POST'])
+def create_task():
+    if not request.json or not 'title' in request.json:
+        abort(400)
+
+    new_task = {
+        'id': tasks[-1]['id'] + 1 if tasks else 1,
+        'title': request.json['title'],
+        'completed': request.json.get('completed', False),
+        'user_id': request.json.get('user_id')
+    }
+
+    tasks.append(new_task)
+    return jsonify(new_task), 201
+    # Route to update an existing task (PUT request)
+@app.route('/tasks/<int:task_id>', methods=['PUT'])
+def update_task(task_id):
+    task = next((task for task in tasks if task['id'] == task_id), None)
+
+    if task is None:
+        abort(404)
+
+    if not request.json:
+        abort(400)
+
+    task['title'] = request.json.get('title', task['title'])
+    task['completed'] = request.json.get('completed', task['completed'])
+    task['user_id'] = request.json.get('user_id', task['user_id'])
+
+    return jsonify(task), 200
+    # Route to delete a task (DELETE request)
+@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    global tasks
+    tasks = [task for task in tasks if task['id'] != task_id]
+    return '', 204
+# Route to retrieve all tasks for a specific user
+@app.route('/users/<int:user_id>/tasks', methods=['GET'])
+def get_user_tasks(user_id):
+    user_tasks = [task for task in tasks if task['user_id'] == user_id]
+    return jsonify(user_tasks), 200
 # Entry point for running the Flask app
 # The app will run on host 0.0.0.0 (accessible on all network interfaces) and port 8000.
 # Debug mode is disabled (set to False).
